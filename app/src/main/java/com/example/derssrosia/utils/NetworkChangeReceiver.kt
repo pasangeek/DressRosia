@@ -10,7 +10,7 @@ import android.os.Build
 
 class NetworkChangeReceiver : BroadcastReceiver() {
 
-    object NetworkChangeReceiver{
+    object NetworkChangeReceiver {
 
         fun isNetworkConnected(context: Context): Boolean {
             val connectivityManager =
