@@ -83,4 +83,6 @@ dependencies {
     implementation (libs.logging.interceptor)
     // Coil
     implementation(libs.coil.compose)
+
+    implementation(libs.androidx.navigation)
 }

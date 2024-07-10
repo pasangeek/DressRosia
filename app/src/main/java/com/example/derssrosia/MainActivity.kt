@@ -1,13 +1,10 @@
 package com.example.derssrosia
 
 
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,6 +48,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.rememberAsyncImagePainter
 import com.example.derssrosia.model.Products
 import com.example.derssrosia.ui.theme.DerssrosiaTheme
@@ -63,7 +67,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: ProductViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -72,7 +75,8 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    HomePageUI(viewModel)
+                    val navController = rememberNavController()
+                    NavGraph(navController = navController, viewModel = viewModel)
                 }
 
             }
@@ -82,9 +86,9 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Composable
-    private fun HomePageUI(viewModel: ProductViewModel) {
+    fun HomePageUI(navController: NavController,viewModel: ProductViewModel,) {
         Scaffold(topBar = {
-            SimpleLightTopAppBar("eShop")
+            SimpleLightTopAppBar("DressRossia")
         }
 
         ) { paddingValues ->
@@ -102,7 +106,7 @@ class MainActivity : ComponentActivity() {
                             columns = GridCells.Adaptive(150.dp),
                             content = {
                                 items(productList.size) { index: Int ->
-                                    ProductCards(productList[index])
+                                    ProductCards(productList[index], navController)
                                 }
                             })
                     }
@@ -138,15 +142,14 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ProductCards(
         product: Products,
+        navController: NavController
     ) {
         val ctx = LocalContext.current
         Card(modifier = Modifier
             .height(270.dp)
             .padding(6.dp)
             .clickable {
-                val intent = Intent(this, ProductDetailScreen::class.java)
-                intent.putExtra("productObject", product);
-                startActivity(intent)
+                navController.navigate("productDetail/${product.id}")
             }
             .width(213.dp), colors = CardDefaults.cardColors(
             containerColor = Color.White,
@@ -244,6 +247,23 @@ class MainActivity : ComponentActivity() {
 
         }
 
+    }
+    @Composable
+    fun NavGraph(navController: NavHostController, viewModel: ProductViewModel) {
+        NavHost(navController = navController, startDestination = "home") {
+            composable("home") {
+                HomePageUI(navController, viewModel)
+            }
+            composable(
+                "productDetail/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getString("productId")
+                ProductDetailScreen(productId, viewModel) {
+                    navController.popBackStack()
+                }
+            }
+        }
     }
 }
 
