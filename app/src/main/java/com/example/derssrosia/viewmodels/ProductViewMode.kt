@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.derssrosia.model.ProductList
+import com.example.derssrosia.model.Products
 import com.example.derssrosia.utils.NetworkChangeReceiver.NetworkChangeReceiver.isNetworkConnected
 import com.example.derssrosia.utils.ViewState
 import com.example.repo.ProductRepository
@@ -75,4 +76,19 @@ class ProductViewModel @Inject constructor(
         }
     }
 
+    fun getProductById(productId: String?): Products? {
+        val id = productId?.toIntOrNull()
+        if (id == null) {
+            Log.e("ProductViewModel", "Invalid product ID: $productId")
+            return null
+        }
+
+        return _products.value.let { viewState ->
+            if (viewState is ViewState.Success) {
+                viewState.data.find { it.id == id }
+            } else {
+                null
+            }
+        }
+    }
 }

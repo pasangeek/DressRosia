@@ -42,31 +42,23 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.derssrosia.model.Products
 import com.example.derssrosia.ui.theme.DerssrosiaTheme
+import com.example.derssrosia.viewmodels.ProductViewModel
 
-class ProductDetailScreen : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContent {
-            DerssrosiaTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
-                ) {
-                    val i = intent
-                    val productObject = intent.getParcelableExtra<Products>("productObject")
-                    ProductDetail(productObject)
-                }
-            }
-        }
+@Composable
+fun ProductDetailScreen(productId: String?, viewModel: ProductViewModel, onBack: () -> Unit) {
+    val product = viewModel.getProductById(productId)
+    product?.let {
+        ProductDetail(it, onBack)
     }
-
+}
     @Composable
-    fun ProductDetail(products: Products?) {
+    fun ProductDetail(products: Products?,onBack: () -> Unit) {
         val context = LocalContext.current
         val act = LocalContext.current as Activity
         Column(
@@ -85,7 +77,7 @@ class ProductDetailScreen : ComponentActivity() {
             ) {
                 IconButton(
                     onClick = {
-                        act.finish()
+                        onBack()
                     },
                     modifier = Modifier
                         .background(color = Color(0x8DE7E1E1), shape = CircleShape)
@@ -230,4 +222,3 @@ class ProductDetailScreen : ComponentActivity() {
         }
 
     }
-}
